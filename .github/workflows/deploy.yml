@@ -21,9 +21,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            whoami
-            # cd animechan-main
-            # git switch master
+            cd animechan-main
+            ls
+            # git switch main
             # git pull --rebase origin main
             # pnpm install:all
             # pm2 restart ecosystem.config.js
