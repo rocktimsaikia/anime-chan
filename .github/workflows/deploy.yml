@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - ssh
 
 jobs:
   deploy:
@@ -13,23 +14,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: SSH and Run Commands on EC2
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          EC2_HOSTNAME: ${{ secrets.EC2_HOSTNAME }}
-          EC2_USERNAME: ${{ secrets.EC2_USERNAME }}
-        run: |
-          # Save private key to a file
-          echo "$SSH_PRIVATE_KEY" > ec2_key.pem
-          chmod 600 ec2_key.pem
-
-          # SSH, run the Commands and capture the output
-          output=$(ssh -o StrictHostKeyChecking=no -i ec2_key.pem "$EC2_USERNAME"@"$EC2_HOSTNAME" '
-          # Pull the latest changes from main branch
-          cd /home/ubuntu/animechan-main &&
-          git switch main &&
-          git pull --rebase origin main &&
-          pnpm install:all
-          pm2 restart ecosystem.config.js
-          ')
-          echo "$output"
+      - name: ssh into EC2 and execute commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            whoami
+            # cd animechan-main
+            # git switch master
+            # git pull --rebase origin main
+            # pnpm install:all
+            # pm2 restart ecosystem.config.js
